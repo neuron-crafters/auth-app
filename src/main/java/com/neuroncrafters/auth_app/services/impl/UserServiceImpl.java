@@ -1,4 +1,4 @@
-package com.neuroncrafters.auth_app.services;
+package com.neuroncrafters.auth_app.services.impl;
 
 import com.neuroncrafters.auth_app.dtos.UserDto;
 import com.neuroncrafters.auth_app.entities.Provider;
@@ -6,11 +6,11 @@ import com.neuroncrafters.auth_app.entities.User;
 import com.neuroncrafters.auth_app.exceptions.ResourceNotFoundException;
 import com.neuroncrafters.auth_app.helpers.UserHelper;
 import com.neuroncrafters.auth_app.repositories.UserRepository;
+import com.neuroncrafters.auth_app.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import tools.jackson.databind.cfg.MapperBuilder;
 
 import java.util.UUID;
