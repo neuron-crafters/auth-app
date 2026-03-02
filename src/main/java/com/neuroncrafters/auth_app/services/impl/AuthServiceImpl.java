@@ -4,6 +4,7 @@ import com.neuroncrafters.auth_app.dtos.UserDto;
 import com.neuroncrafters.auth_app.services.AuthService;
 import com.neuroncrafters.auth_app.services.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,16 +12,17 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Override
-    public UserDto registerUser(UserDto user) {
-
+    public UserDto registerUser(UserDto userDto) {
         // Other logics
         // Validating email
         // Validating password
         // default roles
-        UserDto createdUser = userService.createUser(user);
-        return createdUser;
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        return userService.createUser(userDto);
     }
 
     @Override
