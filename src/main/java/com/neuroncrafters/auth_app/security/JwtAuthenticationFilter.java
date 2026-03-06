@@ -1,21 +1,19 @@
 package com.neuroncrafters.auth_app.security;
 
-import com.neuroncrafters.auth_app.dtos.UserDto;
 import com.neuroncrafters.auth_app.helpers.UserHelper;
 import com.neuroncrafters.auth_app.repositories.UserRepository;
-import com.neuroncrafters.auth_app.services.UserService;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -30,11 +28,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Token will come in request header named "Authorization" and it's value starts with Bearer
         String header = request.getHeader("Authorization");
+
+        logger.info("Authorization header received: " + header);
+
         if (header != null && header.startsWith("Bearer ")) {
             // 1. token extract
             // 2. Validate token
@@ -43,15 +45,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 1. extract token (starting with 7 so it removes "Bearer "
             String token = header.substring(7);
-
-            // Check 1: for access token
-            // so if the request is for refreshToken then return from here
-            if (!jwtService.isAccessToken(token)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
             try{
+                // Check 1: for access token
+                // so if the request is for refreshToken then return from here
+                if (!jwtService.isAccessToken(token)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 // 2. Parse and Verify token
                 Jws<Claims> parse = jwtService.parse(token);
                 // get the payload
@@ -88,9 +89,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 });
             } catch (ExpiredJwtException e) {
+                e.printStackTrace();
             } catch (MalformedJwtException e) {
+                e.printStackTrace();
             } catch (JwtException e) {
+                e.printStackTrace();
             } catch (Exception e) {
+                e.printStackTrace();
             }
 
         }

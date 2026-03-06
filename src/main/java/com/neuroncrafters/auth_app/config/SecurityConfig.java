@@ -59,9 +59,9 @@ public class SecurityConfig {
                                     authException.printStackTrace();
                                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                                     response.setContentType("application/json");
-                                    String message = "Unauthorized Access Denied" + authException.getMessage();
+                                    String message = "Unauthorized Access! " + authException.getMessage();
                                     Map<String, String> errorMap = Map.of("message", message,
-                                            "staus", String.valueOf(401),
+                                            "statusCode", String.valueOf(401),
                                             "error", "Unauthorized");
                                     var objectMapper = new ObjectMapper();
                                     response.getWriter().write(objectMapper.writeValueAsString(errorMap));
