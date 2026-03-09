@@ -1,11 +1,14 @@
 package com.neuroncrafters.auth_app.config;
 
+import com.neuroncrafters.auth_app.dtos.ApiError;
 import com.neuroncrafters.auth_app.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -44,13 +47,13 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm ->
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorizeRequests ->
+                .authorizeHttpRequests(authorizeHttpRequests ->
                 // Skip authorization for register and login
-                authorizeRequests
-                        .requestMatchers("/api/v1/auth/register").permitAll()
-                        .requestMatchers("/api/v1/auth/login").permitAll()
+                authorizeHttpRequests
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()
-        ).exceptionHandling(ex ->
+        )
+                .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(
                                 (request,
                                  response,
@@ -59,12 +62,14 @@ public class SecurityConfig {
                                     authException.printStackTrace();
                                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                                     response.setContentType("application/json");
-                                    String message = "Unauthorized Access! " + authException.getMessage();
-                                    Map<String, String> errorMap = Map.of("message", message,
-                                            "statusCode", String.valueOf(401),
-                                            "error", "Unauthorized");
+                                    String error = (String) request.getAttribute("error");
+                                    String message = authException.getMessage();
+                                    if (error != null) {
+                                        message = error;
+                                    }
+                                    ApiError apiError = ApiError.of(HttpStatus.UNAUTHORIZED.value(), "Unauthorized Access !!", message, request.getRequestURI());
                                     var objectMapper = new ObjectMapper();
-                                    response.getWriter().write(objectMapper.writeValueAsString(errorMap));
+                                    response.getWriter().write(objectMapper.writeValueAsString(apiError));
                                 }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -75,5 +80,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration){
+        return configuration.getAuthenticationManager();
+    }
 
 }

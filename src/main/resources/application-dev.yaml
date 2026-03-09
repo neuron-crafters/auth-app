@@ -35,7 +35,7 @@ logging:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:2Ajw}a#.Eyd/8IBos6y@4Ixvyvp75zz/Oyep?n[p}h}
+    secret: ${JWT_SECRET:258b67b9da8be40b7af5960068fdf0e4faa81738bf56615e146574f9e117cc73a86ce0803718b114c2a811a24065484345855013354b31723a4f947f27baf1aa}
     issuer: ${JWT_ISSUER:api.substring.com}
     access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:3600}
     refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400}
